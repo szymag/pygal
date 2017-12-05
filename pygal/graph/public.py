@@ -108,7 +108,7 @@ class PublicApi(BaseGraph):
             ).decode('utf-8').replace('\n', '')
         )
 
-    def render_to_file(self, filename, **kwargs):
+    def render_to_svg(self, filename, **kwargs):
         """Render the graph, and write it to filename"""
         with io.open(filename, 'w', encoding='utf-8') as f:
             f.write(self.render(is_unicode=True, **kwargs))
@@ -118,6 +118,21 @@ class PublicApi(BaseGraph):
         import cairosvg
         return cairosvg.svg2png(
             bytestring=self.render(**kwargs), write_to=filename, dpi=dpi)
+
+    def render_to_file(self, filename, **kwargs):
+        """Render the graph, and write it to filename or render the graph,
+        convert it to desired format and write it to filename. """
+        if '.' in filename:
+            format = filename.split('.')[1]
+        else:
+            raise ValueError('Argument error. No format were put.')
+
+        if format == 'png':
+            return self.render_to_png(filename)
+        elif format == 'svg':
+            return self.render_to_svg(filename)
+        else:
+            raise ValueError('Argument error. This format is not supported by pygal.')
 
     def render_sparktext(self, relative_to=None):
         """Make a mini text sparkline from chart"""
